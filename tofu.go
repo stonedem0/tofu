@@ -14,6 +14,7 @@ const (
 	showCursor = "\033[?25h"
 )
 
+//ProgressBar struct
 type ProgressBar struct {
 	width   int
 	fg      string
@@ -51,7 +52,7 @@ func (p *ProgressBar) PrintProgressBar() {
 }
 
 // CleanUp resets terminal default params
-func (p *ProgressBar) CleanUp() {
+func CleanUp() {
 	fmt.Printf(showCursor)
 }
 
@@ -59,6 +60,10 @@ func (p *ProgressBar) CleanUp() {
 
 //PrintLoader ...
 func (p *ProgressBar) PrintLoader(percent float32, ar []string, total int) {
+	moon := []string{"🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌑"}
+	clock := []string{"🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
+	_ = moon
+	_ = clock
 	for i := 0; i <= total; i++ {
 		for _, m := range ar {
 			fmt.Printf("\r %s", m)
@@ -67,10 +72,5 @@ func (p *ProgressBar) PrintLoader(percent float32, ar []string, total int) {
 	}
 }
 func main() {
-	p := ProgressBar{}
-	moon := []string{"🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌑"}
-	clock := []string{"🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
-	_ = moon
-	_ = clock
-	p.CleanUp()
+	CleanUp()
 }
