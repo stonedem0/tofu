@@ -70,16 +70,12 @@ func main() {
 	p := ProgressBar{}
 	moon := []string{"🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌑"}
 	// clock := []string{"🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
-	// spok := []string{"✋", "🖖"}
-	// p := ProgressBar{10, "🌝 ", "🌚 ", softPink}
 	p.PrintLoader(1, moon, 5)
-	// p.PrintProgressBarArray(5, clock, 100)
-	// p.PrintProgressBarArray(1, spok, 100)
 	total := 100
 	for i := 0; i <= total; i++ {
-		p.PrintLoader(float32(i)/float32(total), moon, total)
-		// p.ProgressBar(float32(i)/float32(total), 40, softPink, "▇", "░")
-		// p.PrintProgressBar()
+		// p.PrintLoader(float32(i)/float32(total), moon, total)
+		p.ProgressBar(float32(i)/float32(total), 40, softPink, "▇", "░")
+		p.PrintProgressBar()
 	}
 	p.CleanUp()
 }
