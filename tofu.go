@@ -1,4 +1,4 @@
-package main
+package tofu
 
 import (
 	"fmt"
@@ -68,14 +68,14 @@ func (p *ProgressBar) PrintLoader(percent float32, ar []string, total int) {
 }
 func main() {
 	p := ProgressBar{}
-	moon := []string{"🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌑"}
-	// clock := []string{"🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
-	p.PrintLoader(1, moon, 5)
-	total := 100
-	for i := 0; i <= total; i++ {
-		// p.PrintLoader(float32(i)/float32(total), moon, total)
-		p.ProgressBar(float32(i)/float32(total), 40, softPink, "▇", "░")
-		p.PrintProgressBar()
-	}
+	// moon := []string{"🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌑"}
+	// // clock := []string{"🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
+	// p.PrintLoader(1, moon, 5)
+	// total := 100
+	// for i := 0; i <= total; i++ {
+	// 	// p.PrintLoader(float32(i)/float32(total), moon, total)
+	// 	p.ProgressBar(float32(i)/float32(total), 40, softPink, "▇", "░")
+	// 	p.PrintProgressBar()
+	// }
 	p.CleanUp()
 }
