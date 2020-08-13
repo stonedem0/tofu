@@ -54,10 +54,7 @@ func (p *ProgressBar) PrintProgressBar(percent float32) {
 
 	//Hiding terminal cursor
 	fmt.Printf(hideCursor)
-	// println(p.showPercentage)
-
 	fmt.Printf("%s", p.ProgressBar(percent))
-	//Showing terminal cursor
 }
 
 // CleanUp resets terminal default params
