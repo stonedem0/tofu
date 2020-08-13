@@ -16,38 +16,47 @@ const (
 
 //ProgressBar struct
 type ProgressBar struct {
-	width   int
-	fg      string
-	bg      string
-	color   uint8
-	percent float32
+	Width          int
+	Fg             string
+	Bg             string
+	Color          uint8
+	ShowPercentage bool
+}
+
+// New returns a new ProgressBar
+func New(width int) ProgressBar {
+	p := ProgressBar{}
+	return p
 }
 
 //ProgressBar returns created progess bar based on parameters
-func (p *ProgressBar) ProgressBar(percent float32, width int, color uint8, fg string, bg string) string {
+func (p *ProgressBar) ProgressBar(percent float32) string {
+	if p.Width < 0 || p.Fg == "" || p.Bg == "" || p.Color > 0 {
+		p.Width = 40
+		p.Fg = "▇"
+		p.Bg = "░"
+		p.ShowPercentage = true
+		p.Color = softPink
+	}
+	filled := int(float32(p.Width) * float32(percent))
+	unfilled := p.Width - filled
+	fgBar := aurora.Index(p.Color, strings.Repeat(p.Bg, unfilled)).String()
+	bgBar := aurora.Index(p.Color, strings.Repeat(p.Fg, filled)).String()
+	if p.ShowPercentage {
+		return fmt.Sprintf("\r %s%s %d %s", bgBar, fgBar, aurora.Index(p.Color, int(percent*100)), aurora.Index(p.Color, "%"))
+	}
 
-	//Creating progress bar based on arguments:
-	p.width = width
-	p.fg = fg
-	p.bg = bg
-	p.color = color
-	p.percent = percent
-
-	//Calculting filled/unfilled space
-	filled := int(float32(p.width) * float32(percent))
-	unfilled := p.width - filled
-	fgBar := aurora.Index(p.color, strings.Repeat(p.bg, unfilled)).String()
-	bgBar := aurora.Index(p.color, strings.Repeat(p.fg, filled)).String()
-	return fmt.Sprintf("\r %s%s %d %s", bgBar, fgBar, aurora.Index(p.color, int(percent*100)), aurora.Index(p.color, "%"))
+	return fmt.Sprintf("\r %s%s", bgBar, fgBar)
 }
 
 //PrintProgressBar prints the result of ProgressBar function
-func (p *ProgressBar) PrintProgressBar() {
+func (p *ProgressBar) PrintProgressBar(percent float32) {
 
 	//Hiding terminal cursor
 	fmt.Printf(hideCursor)
+	// println(p.showPercentage)
 
-	fmt.Printf("%s", p.ProgressBar(p.percent, p.width, p.color, p.fg, p.bg))
+	fmt.Printf("%s", p.ProgressBar(percent))
 	//Showing terminal cursor
 }
 
@@ -56,21 +65,6 @@ func CleanUp() {
 	fmt.Printf(showCursor)
 }
 
-//TODO PrintLoader, Loader
-
-//PrintLoader ...
-func (p *ProgressBar) PrintLoader(percent float32, ar []string, total int) {
-	moon := []string{"🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌑"}
-	clock := []string{"🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
-	_ = moon
-	_ = clock
-	for i := 0; i <= total; i++ {
-		for _, m := range ar {
-			fmt.Printf("\r %s", m)
-			// time.Sleep(time.Second / percent)
-		}
-	}
-}
 func main() {
 	CleanUp()
 }
