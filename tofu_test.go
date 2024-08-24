@@ -4,12 +4,13 @@ import (
 	"testing"
 )
 
-//Test for creating progress bar
+// Test for creating progress bar
 func Test_ProgressBar(t *testing.T) {
-	p := ProgressBar{}
-	total := 100
+	p := New(40, "limeWire", true)
+	total := 1000000
 	for a := 0; a < total; a++ {
-		p.ProgressBar(float32(a)/float32(total), 40, softPink, "▇", "░")
-
+		percent := float32(a) / float32(total)
+		p.ProgressBar(percent)
+		p.PrintProgressBar(percent)
 	}
 }

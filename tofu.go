@@ -8,60 +8,97 @@ import (
 )
 
 const (
-	softPink   = 213
-	purple     = 57
-	hideCursor = "\033[?25l"
-	showCursor = "\033[?25h"
+	hideCursor = "\033[?25l" /* ANSI escape code to hide the cursor */
+	showCursor = "\033[?25h" /* ANSI escape code to show the cursor */
+	clearLine  = "\033[K"    /* ANSI escape code to clear the line */
+	defaultFg  = "█"         /* Default foreground character for the progress bar */
+	defaultBg  = "░"         /* Default background character for the progress bar */
 )
 
-//ProgressBar struct
 type ProgressBar struct {
-	Width          int
-	Fg             string
-	Bg             string
-	Color          uint8
-	ShowPercentage bool
+	Width          int      /* Width of the progress bar */
+	Fg             string   /* Foreground character for the progress bar */
+	Bg             string   /* Background character for the progress bar */
+	ShowPercentage bool     /* Flag to show percentage on the progress bar */
+	Theme          string   /* Theme for colors */
+	AddGradient    bool     /* Flag to add gradient effect */
+	Colors         []string /* Slice of colors for gradient */
 }
 
-// New returns a new ProgressBar
-func New(width int) ProgressBar {
-	p := ProgressBar{}
-	return p
+// New returns a new ProgressBar with default settings
+func New(width int, theme string, addGradient bool) ProgressBar {
+	var colors []string
+	switch theme {
+	case "purpleHaze":
+		colors = PurpleHaze
+	case "pastelCore":
+		colors = PastelCore
+	case "limeWire":
+		colors = LimeWire
+	default:
+		theme = "heatWave" // Default theme
+		colors = HeatWave
+	}
+
+	return ProgressBar{
+		Width:          width,
+		Fg:             defaultFg,
+		Bg:             defaultBg,
+		ShowPercentage: true,
+		Theme:          theme,
+		AddGradient:    addGradient,
+		Colors:         colors,
+	}
 }
 
-//ProgressBar returns created progess bar based on parameters
+// createGradient generates a gradient if AddGradient is true
+func (p *ProgressBar) createGradient(filled int) string {
+	if len(p.Colors) == 0 {
+		return strings.Repeat(p.Fg, filled) /* No colors defined; use default character */
+	}
+
+	if !p.AddGradient {
+		/* No gradient needed; use the first color in the theme */
+		return strings.Repeat(p.Colors[0]+p.Fg+p.Colors[len(p.Colors)-1], filled)
+	}
+
+	colorCount := len(p.Colors) - 1 /* Last color is used for resetting color */
+	segmentSize := p.Width / colorCount
+	fgBar := ""
+
+	/* Build the progress bar with gradient colors */
+	for i := 0; i < filled; i++ {
+		colorIndex := i / segmentSize
+		if colorIndex >= colorCount {
+			colorIndex = colorCount - 1 /* Ensure index is within bounds */
+		}
+		fgBar += p.Colors[colorIndex] + p.Fg + p.Colors[len(p.Colors)-1] /* Append color and reset color */
+	}
+
+	return fgBar
+}
+
+// ProgressBar returns the created progress bar string based on the percentage
 func (p *ProgressBar) ProgressBar(percent float32) string {
-	if p.Width < 0 || p.Fg == "" || p.Bg == "" || p.Color > 0 {
-		p.Width = 40
-		p.Fg = "▇"
-		p.Bg = "░"
-		p.ShowPercentage = true
-		p.Color = softPink
-	}
-	filled := int(float32(p.Width) * float32(percent))
+	filled := int(float32(p.Width) * percent)
 	unfilled := p.Width - filled
-	fgBar := aurora.Index(p.Color, strings.Repeat(p.Bg, unfilled)).String()
-	bgBar := aurora.Index(p.Color, strings.Repeat(p.Fg, filled)).String()
-	if p.ShowPercentage {
-		return fmt.Sprintf("\r %s%s %d %s", bgBar, fgBar, aurora.Index(p.Color, int(percent*100)), aurora.Index(p.Color, "%"))
-	}
+	fgBar := p.createGradient(filled)
+	bgBar := strings.Repeat(p.Bg, unfilled)
 
-	return fmt.Sprintf("\r %s%s", bgBar, fgBar)
+	if p.ShowPercentage {
+		return fmt.Sprintf("\r %s%s %d %s", fgBar, bgBar, int(percent*100), aurora.BrightWhite("%"))
+	}
+	return fmt.Sprintf("\r %s%s", fgBar, bgBar)
 }
 
-//PrintProgressBar prints the result of ProgressBar function
+// PrintProgressBar prints the progress bar to stdout
 func (p *ProgressBar) PrintProgressBar(percent float32) {
-
-	//Hiding terminal cursor
+	/* Hide the terminal cursor */
 	fmt.Printf(hideCursor)
 	fmt.Printf("%s", p.ProgressBar(percent))
 }
 
-// CleanUp resets terminal default params
+// CleanUp resets terminal default parameters
 func CleanUp() {
 	fmt.Printf(showCursor)
-}
-
-func main() {
-	CleanUp()
 }
