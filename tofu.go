@@ -1,6 +1,7 @@
 package tofu
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -8,25 +9,37 @@ import (
 )
 
 const (
-	hideCursor = "\033[?25l" /* ANSI escape code to hide the cursor */
-	showCursor = "\033[?25h" /* ANSI escape code to show the cursor */
-	clearLine  = "\033[K"    /* ANSI escape code to clear the line */
-	defaultFg  = "█"         /* Default foreground character for the progress bar */
-	defaultBg  = "░"         /* Default background character for the progress bar */
+	hideCursor = "\033[?25l" /* ansi escape code to hide the cursor */
+	showCursor = "\033[?25h" /* ansi escape code to show the cursor */
+	clearLine  = "\033[K"    /* ansi escape code to clear the line */
+	defaultFg  = "█"         /* default foreground character for the progress bar */
+	defaultBg  = "░"         /* default background character for the progress bar */
+)
+
+var (
+	// define color themes
+	PurpleHaze = []string{"\033[38;5;57m", "\033[38;5;93m", "\033[38;5;99m", "\033[0m"}
+	PastelCore = []string{"\033[38;5;153m", "\033[38;5;159m", "\033[38;5;165m", "\033[0m"}
+	LimeWire   = []string{"\033[38;5;118m", "\033[38;5;154m", "\033[38;5;190m", "\033[0m"}
+	HeatWave   = []string{"\033[38;5;196m", "\033[38;5;202m", "\033[38;5;208m", "\033[0m"}
 )
 
 type ProgressBar struct {
-	Width          int      /* Width of the progress bar */
-	Fg             string   /* Foreground character for the progress bar */
-	Bg             string   /* Background character for the progress bar */
-	ShowPercentage bool     /* Flag to show percentage on the progress bar */
-	Theme          string   /* Theme for colors */
-	AddGradient    bool     /* Flag to add gradient effect */
-	Colors         []string /* Slice of colors for gradient */
+	Width          int      /* width of the progress bar */
+	Fg             string   /* foreground character for the progress bar */
+	Bg             string   /* background character for the progress bar */
+	ShowPercentage bool     /* flag to show percentage on the progress bar */
+	Theme          string   /* theme for colors */
+	AddGradient    bool     /* flag to add gradient effect */
+	Colors         []string /* slice of colors for gradient */
 }
 
-// New returns a new ProgressBar with default settings
-func New(width int, theme string, addGradient bool) ProgressBar {
+// New creates a new progress bar with default settings or returns an error if the input is invalid
+func New(width int, theme string, addGradient bool) (ProgressBar, error) {
+	if width <= 0 {
+		return ProgressBar{}, errors.New("width must be a positive integer")
+	}
+
 	var colors []string
 	switch theme {
 	case "purpleHaze":
@@ -36,7 +49,9 @@ func New(width int, theme string, addGradient bool) ProgressBar {
 	case "limeWire":
 		colors = LimeWire
 	default:
-		theme = "heatWave" // Default theme
+		if theme != "heatWave" {
+			return ProgressBar{}, errors.New("invalid theme provided")
+		}
 		colors = HeatWave
 	}
 
@@ -48,31 +63,31 @@ func New(width int, theme string, addGradient bool) ProgressBar {
 		Theme:          theme,
 		AddGradient:    addGradient,
 		Colors:         colors,
-	}
+	}, nil
 }
 
 // createGradient generates a gradient if AddGradient is true
 func (p *ProgressBar) createGradient(filled int) string {
 	if len(p.Colors) == 0 {
-		return strings.Repeat(p.Fg, filled) /* No colors defined; use default character */
+		return strings.Repeat(p.Fg, filled) /* no colors defined; use default character */
 	}
 
 	if !p.AddGradient {
-		/* No gradient needed; use the first color in the theme */
+		/* no gradient needed; use the first color in the theme */
 		return strings.Repeat(p.Colors[0]+p.Fg+p.Colors[len(p.Colors)-1], filled)
 	}
 
-	colorCount := len(p.Colors) - 1 /* Last color is used for resetting color */
+	colorCount := len(p.Colors) - 1 /* last color is used for resetting color */
 	segmentSize := p.Width / colorCount
 	fgBar := ""
 
-	/* Build the progress bar with gradient colors */
+	/* build the progress bar with gradient colors */
 	for i := 0; i < filled; i++ {
 		colorIndex := i / segmentSize
 		if colorIndex >= colorCount {
-			colorIndex = colorCount - 1 /* Ensure index is within bounds */
+			colorIndex = colorCount - 1 /* ensure index is within bounds */
 		}
-		fgBar += p.Colors[colorIndex] + p.Fg + p.Colors[len(p.Colors)-1] /* Append color and reset color */
+		fgBar += p.Colors[colorIndex] + p.Fg + p.Colors[len(p.Colors)-1] /* append color and reset color */
 	}
 
 	return fgBar
@@ -80,6 +95,10 @@ func (p *ProgressBar) createGradient(filled int) string {
 
 // ProgressBar returns the created progress bar string based on the percentage
 func (p *ProgressBar) ProgressBar(percent float32) string {
+	if percent < 0 || percent > 1 {
+		return "" /* return empty string for invalid percentage values */
+	}
+
 	filled := int(float32(p.Width) * percent)
 	unfilled := p.Width - filled
 	fgBar := p.createGradient(filled)
@@ -93,7 +112,11 @@ func (p *ProgressBar) ProgressBar(percent float32) string {
 
 // PrintProgressBar prints the progress bar to stdout
 func (p *ProgressBar) PrintProgressBar(percent float32) {
-	/* Hide the terminal cursor */
+	if percent < 0 || percent > 1 {
+		return /* do nothing for invalid percentage values */
+	}
+
+	/* hide the terminal cursor */
 	fmt.Printf(hideCursor)
 	fmt.Printf("%s", p.ProgressBar(percent))
 }
