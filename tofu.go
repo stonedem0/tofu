@@ -13,15 +13,19 @@ const (
 	showCursor = "\033[?25h" /* ansi escape code to show the cursor */
 	clearLine  = "\033[K"    /* ansi escape code to clear the line */
 	defaultFg  = "█"         /* default foreground character for the progress bar */
-	defaultBg  = "░"         /* default background character for the progress bar */
+	defaultBg  = "░"
+	PurpleHaze = "purpleHaze"
+	PastelCore = "pastelCore"
+	LimeWire   = "limeWire"
+	HeatWave   = "heatWave"
 )
 
 var (
 	// define color themes
-	PurpleHaze = []string{"\033[38;5;57m", "\033[38;5;93m", "\033[38;5;99m", "\033[0m"}
-	PastelCore = []string{"\033[38;5;153m", "\033[38;5;159m", "\033[38;5;165m", "\033[0m"}
-	LimeWire   = []string{"\033[38;5;118m", "\033[38;5;154m", "\033[38;5;190m", "\033[0m"}
-	HeatWave   = []string{"\033[38;5;196m", "\033[38;5;202m", "\033[38;5;208m", "\033[0m"}
+	purpleHaze = []string{"\033[38;5;57m", "\033[38;5;93m", "\033[38;5;99m", "\033[0m"}
+	pastelCore = []string{"\033[38;5;153m", "\033[38;5;159m", "\033[38;5;165m", "\033[0m"}
+	limeWire   = []string{"\033[38;5;118m", "\033[38;5;154m", "\033[38;5;190m", "\033[0m"}
+	heatWave   = []string{"\033[38;5;196m", "\033[38;5;202m", "\033[38;5;208m", "\033[0m"}
 )
 
 type ProgressBar struct {
@@ -42,17 +46,17 @@ func New(width int, theme string, addGradient bool) (ProgressBar, error) {
 
 	var colors []string
 	switch theme {
-	case "purpleHaze":
-		colors = PurpleHaze
-	case "pastelCore":
-		colors = PastelCore
-	case "limeWire":
-		colors = LimeWire
+	case PurpleHaze:
+		colors = purpleHaze
+	case PastelCore:
+		colors = pastelCore
+	case LimeWire:
+		colors = limeWire
 	default:
-		if theme != "heatWave" {
+		if theme != HeatWave {
 			return ProgressBar{}, errors.New("invalid theme provided")
 		}
-		colors = HeatWave
+		colors = heatWave
 	}
 
 	return ProgressBar{
