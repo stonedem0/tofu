@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-
-	"github.com/logrusorgru/aurora"
 )
 
 const (
@@ -13,7 +11,10 @@ const (
 	showCursor = "\033[?25h" /* ansi escape code to show the cursor */
 	clearLine  = "\033[K"    /* ansi escape code to clear the line */
 	defaultFg  = "█"         /* default foreground character for the progress bar */
-	defaultBg  = "░"
+	defaultBg  = "░"         /* default background character for the progress bar */
+)
+
+const (
 	PurpleHaze = "purpleHaze"
 	PastelCore = "pastelCore"
 	LimeWire   = "limeWire"
@@ -23,9 +24,9 @@ const (
 var (
 	// define color themes
 	purpleHaze = []string{"\033[38;5;57m", "\033[38;5;93m", "\033[38;5;99m", "\033[0m"}
-	pastelCore = []string{"\033[38;5;153m", "\033[38;5;159m", "\033[38;5;165m", "\033[0m"}
-	limeWire   = []string{"\033[38;5;118m", "\033[38;5;154m", "\033[38;5;190m", "\033[0m"}
-	heatWave   = []string{"\033[38;5;196m", "\033[38;5;202m", "\033[38;5;208m", "\033[0m"}
+	pastelCore = []string{"\033[38;5;225m", "\033[38;5;189m", "\033[38;5;153m", "\033[38;5;117m", "\033[38;5;81m", "\033[38;5;45m", "\033[0m"}
+	limeWire   = []string{"\033[38;5;226m", "\033[38;5;190m", "\033[38;5;154m", "\033[38;5;118m", "\033[38;5;82m", "\033[38;5;46m", "\033[0m"}
+	heatWave   = []string{"\033[38;5;196m", "\033[38;5;202m", "\033[38;5;208m", "\033[38;5;214m", "\033[38;5;220m", "\033[38;5;226m", "\033[0m"}
 )
 
 type ProgressBar struct {
@@ -108,8 +109,11 @@ func (p *ProgressBar) ProgressBar(percent float32) string {
 	fgBar := p.createGradient(filled)
 	bgBar := strings.Repeat(p.Bg, unfilled)
 
+	// ANSI escape code for bright white text
+	percentText := fmt.Sprintf("\033[97m%d%%\033[0m", int(percent*100))
+
 	if p.ShowPercentage {
-		return fmt.Sprintf("\r %s%s %d %s", fgBar, bgBar, int(percent*100), aurora.BrightWhite("%"))
+		return fmt.Sprintf("\r %s%s %s", fgBar, bgBar, percentText)
 	}
 	return fmt.Sprintf("\r %s%s", fgBar, bgBar)
 }

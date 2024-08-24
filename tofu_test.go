@@ -6,7 +6,7 @@ import (
 
 // Test for creating progress bar
 func Test_ProgressBar(t *testing.T) {
-	p, err := New(40, PurpleHaze, true)
+	p, err := New(40, HeatWave, true)
 	if err != nil {
 		t.Errorf("Failed to create progress bar: %v", err)
 	}
