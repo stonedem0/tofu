@@ -115,12 +115,15 @@ func (p *ProgressBar) ProgressBar(percent float32) string {
 	fgBar := p.createGradient(filled)
 	bgBar := strings.Repeat(p.Bg, unfilled)
 
-	percentText := fmt.Sprintf("\033[97m%d%%\033[0m", int(percent*100))
+	percentColour := p.Colors[0]
+
+	percentText := fmt.Sprintf("%s %s %d", percentColour, "%", int(percent*100))
 
 	if p.ShowPercentage {
 		return fmt.Sprintf("\r %s%s %s", fgBar, bgBar, percentText)
 	}
 	return fmt.Sprintf("\r %s%s", fgBar, bgBar)
+
 }
 
 func (p *ProgressBar) PrintProgressBar(percent float32) {
@@ -134,7 +137,13 @@ func (p *ProgressBar) PrintProgressBar(percent float32) {
 
 }
 
-func CleanUp() {
-	fmt.Printf("s\n")
+/* CleanUp resets terminal state to default */
+func (p *ProgressBar) CleanUp() {
 	fmt.Print(showCursor)
+	fmt.Print("\033[0m") /* reset colors */
+	fmt.Print("\n")
+}
+
+func (p *ProgressBar) Finalize() {
+	p.CleanUp()
 }

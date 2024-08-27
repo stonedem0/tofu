@@ -18,5 +18,5 @@ func Test_ProgressBar(t *testing.T) {
 		p.PrintProgressBar(percent)
 		time.Sleep(10 * time.Millisecond)
 	}
-	CleanUp()
+	p.Finalize()
 }
