@@ -43,7 +43,7 @@ type ProgressBar struct {
 	Colors         []string /* slice of colors for gradient */
 }
 
-func New(width int, theme string, addGradient bool) (ProgressBar, error) {
+func New(width int, theme string, addGradient, showPercentage bool) (ProgressBar, error) {
 	if width <= 0 {
 		return ProgressBar{}, errors.New("width must be a positive integer")
 	}
@@ -71,22 +71,25 @@ func New(width int, theme string, addGradient bool) (ProgressBar, error) {
 		Width:          width,
 		Fg:             defaultFg,
 		Bg:             defaultBg,
-		ShowPercentage: true,
+		ShowPercentage: showPercentage,
 		Theme:          theme,
 		AddGradient:    addGradient,
 		Colors:         colors,
 	}, nil
 }
 
-/* createGradient generates a gradient if AddGradient is true */
-func (p *ProgressBar) createGradient(filled int) string {
+/* createGradient generates a gradient if AddGradient is true
+returns the foreground bar and the color to set present info to
+*/
+
+func (p *ProgressBar) createGradient(filled int) (string, string) {
 	if len(p.Colors) == 0 {
-		return strings.Repeat(p.Fg, filled) /* no colors defined; use default character */
+		return strings.Repeat(p.Fg, filled), "" /* no colors defined; use default character */
 	}
 
 	if !p.AddGradient {
 		/* no gradient needed; use the first color in the theme */
-		return strings.Repeat(p.Colors[0]+p.Fg+p.Colors[len(p.Colors)-1], filled)
+		return strings.Repeat(p.Colors[0]+p.Fg+p.Colors[len(p.Colors)-1], filled), ""
 	}
 
 	colorCount := len(p.Colors) - 1 /* last color is used for resetting color */
@@ -94,15 +97,16 @@ func (p *ProgressBar) createGradient(filled int) string {
 	fgBar := ""
 
 	/* build the progress bar with gradient colors */
+	colorIndex := 0
 	for i := 0; i < filled; i++ {
-		colorIndex := i / segmentSize
+		colorIndex = i / segmentSize
 		if colorIndex >= colorCount {
 			colorIndex = colorCount - 1 /* ensure index is within bounds */
 		}
 		fgBar += p.Colors[colorIndex] + p.Fg + p.Colors[len(p.Colors)-1] /* append color and reset color */
 	}
 
-	return fgBar
+	return fgBar, p.Colors[colorIndex]
 }
 
 func (p *ProgressBar) ProgressBar(percent float32) string {
@@ -112,12 +116,13 @@ func (p *ProgressBar) ProgressBar(percent float32) string {
 
 	filled := int(float32(p.Width) * percent)
 	unfilled := p.Width - filled
-	fgBar := p.createGradient(filled)
+	fgBar, percentColor := p.createGradient(filled)
+	if percentColor == "" {
+		percentColor = p.Colors[0]
+	}
 	bgBar := strings.Repeat(p.Bg, unfilled)
 
-	percentColour := p.Colors[0]
-
-	percentText := fmt.Sprintf("%s %s %d", percentColour, "%", int(percent*100))
+	percentText := fmt.Sprintf("%s %s %d", percentColor, "%", int(percent*100))
 
 	if p.ShowPercentage {
 		return fmt.Sprintf("\r %s%s %s", fgBar, bgBar, percentText)

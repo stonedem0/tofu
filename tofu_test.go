@@ -6,11 +6,10 @@ import (
 )
 
 func Test_ProgressBar(t *testing.T) {
-	p, err := New(40, BubbleGum, true)
+	p, err := New(40, BubbleGum, true, true)
 	if err != nil {
-		t.Fatalf("Failed to create progress bar: %v", err)
+		t.Fatalf("failed to create progress bar: %v", err)
 	}
-
 	total := 200
 	for a := 0; a <= total; a++ {
 		percent := float32(a) / float32(total)
