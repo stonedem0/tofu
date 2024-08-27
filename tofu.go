@@ -19,14 +19,18 @@ const (
 	PastelCore = "pastelCore"
 	LimeWire   = "limeWire"
 	HeatWave   = "heatWave"
+	BubbleGum  = "bubbleGum"
 )
 
 var (
-	// define color themes
-	purpleHaze = []string{"\033[38;5;57m", "\033[38;5;93m", "\033[38;5;99m", "\033[0m"}
+	purpleHaze = []string{
+		"\033[38;5;128m", "\033[38;5;129m", "\033[38;5;92m", "\033[38;5;56m", "\033[38;5;57m", "\033[0m"}
 	pastelCore = []string{"\033[38;5;225m", "\033[38;5;189m", "\033[38;5;153m", "\033[38;5;117m", "\033[38;5;81m", "\033[38;5;45m", "\033[0m"}
 	limeWire   = []string{"\033[38;5;226m", "\033[38;5;190m", "\033[38;5;154m", "\033[38;5;118m", "\033[38;5;82m", "\033[38;5;46m", "\033[0m"}
 	heatWave   = []string{"\033[38;5;196m", "\033[38;5;202m", "\033[38;5;208m", "\033[38;5;214m", "\033[38;5;220m", "\033[38;5;226m", "\033[0m"}
+	bubbleGum  = []string{
+		"\033[38;5;87m", "\033[38;5;51m", "\033[38;5;123m", "\033[38;5;159m", "\033[38;5;195m", "\033[38;5;231m", "\033[38;5;225m", "\033[38;5;219m", "\033[38;5;212m", "\033[38;5;207m", "\033[38;5;206m", "\033[38;5;201m", "\033[38;5;200m", "\033[0m",
+	}
 )
 
 type ProgressBar struct {
@@ -39,7 +43,6 @@ type ProgressBar struct {
 	Colors         []string /* slice of colors for gradient */
 }
 
-// New creates a new progress bar with default settings or returns an error if the input is invalid
 func New(width int, theme string, addGradient bool) (ProgressBar, error) {
 	if width <= 0 {
 		return ProgressBar{}, errors.New("width must be a positive integer")
@@ -53,6 +56,10 @@ func New(width int, theme string, addGradient bool) (ProgressBar, error) {
 		colors = pastelCore
 	case LimeWire:
 		colors = limeWire
+	case HeatWave:
+		colors = heatWave
+	case BubbleGum:
+		colors = bubbleGum
 	default:
 		if theme != HeatWave {
 			return ProgressBar{}, errors.New("invalid theme provided")
@@ -71,7 +78,7 @@ func New(width int, theme string, addGradient bool) (ProgressBar, error) {
 	}, nil
 }
 
-// createGradient generates a gradient if AddGradient is true
+/* createGradient generates a gradient if AddGradient is true */
 func (p *ProgressBar) createGradient(filled int) string {
 	if len(p.Colors) == 0 {
 		return strings.Repeat(p.Fg, filled) /* no colors defined; use default character */
@@ -98,7 +105,6 @@ func (p *ProgressBar) createGradient(filled int) string {
 	return fgBar
 }
 
-// ProgressBar returns the created progress bar string based on the percentage
 func (p *ProgressBar) ProgressBar(percent float32) string {
 	if percent < 0 || percent > 1 {
 		return "" /* return empty string for invalid percentage values */
@@ -109,7 +115,6 @@ func (p *ProgressBar) ProgressBar(percent float32) string {
 	fgBar := p.createGradient(filled)
 	bgBar := strings.Repeat(p.Bg, unfilled)
 
-	// ANSI escape code for bright white text
 	percentText := fmt.Sprintf("\033[97m%d%%\033[0m", int(percent*100))
 
 	if p.ShowPercentage {
@@ -118,18 +123,18 @@ func (p *ProgressBar) ProgressBar(percent float32) string {
 	return fmt.Sprintf("\r %s%s", fgBar, bgBar)
 }
 
-// PrintProgressBar prints the progress bar to stdout
 func (p *ProgressBar) PrintProgressBar(percent float32) {
 	if percent < 0 || percent > 1 {
 		return /* do nothing for invalid percentage values */
 	}
 
 	/* hide the terminal cursor */
-	fmt.Printf(hideCursor)
+	fmt.Print(hideCursor)
 	fmt.Printf("%s", p.ProgressBar(percent))
+
 }
 
-// CleanUp resets terminal default parameters
 func CleanUp() {
-	fmt.Printf(showCursor)
+	fmt.Printf("s\n")
+	fmt.Print(showCursor)
 }
