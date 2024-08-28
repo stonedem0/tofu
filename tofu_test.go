@@ -6,7 +6,7 @@ import (
 )
 
 func Test_ProgressBar(t *testing.T) {
-	p, err := New(40, BubbleGum, true, true)
+	p, err := New(40, BubbleGum, "", "", true, true)
 	if err != nil {
 		t.Fatalf("failed to create progress bar: %v", err)
 	}

@@ -43,11 +43,16 @@ type ProgressBar struct {
 	Colors         []string /* slice of colors for gradient */
 }
 
-func New(width int, theme string, addGradient, showPercentage bool) (ProgressBar, error) {
+func New(width int, theme, bg, fg string, addGradient, showPercentage bool) (ProgressBar, error) {
 	if width <= 0 {
 		return ProgressBar{}, errors.New("width must be a positive integer")
 	}
-
+	if bg == "" {
+		bg = defaultBg
+	}
+	if fg == "" {
+		fg = defaultFg
+	}
 	var colors []string
 	switch theme {
 	case PurpleHaze:
@@ -69,8 +74,8 @@ func New(width int, theme string, addGradient, showPercentage bool) (ProgressBar
 
 	return ProgressBar{
 		Width:          width,
-		Fg:             defaultFg,
-		Bg:             defaultBg,
+		Fg:             fg,
+		Bg:             bg,
 		ShowPercentage: showPercentage,
 		Theme:          theme,
 		AddGradient:    addGradient,
